@@ -1,0 +1,9 @@
+.gocache/
+
+# Go build/test artifacts
+*.test
+*.out
+coverage.out
+
+# Local editor/OS files
+.DS_Store
