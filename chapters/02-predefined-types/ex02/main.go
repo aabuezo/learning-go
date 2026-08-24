@@ -12,7 +12,7 @@ func main() {
 	fmt.Println("int_div:", int_div)
 
 	float_div := float64(a / b) // convierte el resultado de la division entera
-	fmt.Println("float_div:", float_div)
+	fmt.Printf("float_div: %.2f\n", float_div)
 
 	// float_div = a / float64(b)	// invalid operation: a / float64(b) (mismatched types int and float64)
 	float_div = float64(a) / float64(b)
