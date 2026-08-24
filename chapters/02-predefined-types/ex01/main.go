@@ -2,77 +2,87 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"unsafe"
 )
 
-var (
-	i   int
-	i64 int64
-	i32 int32
-	f64 float64
-	b   byte
-	r   rune
-	s   string
-	t   bool
-)
-
 func main() {
-	i = 10
-	// i64 = i
 
-	i32 = int32(i)
-	i64 = int64(i32)
-	// i32 = i64
+	// default types, zero values
+	var b byte        // alias para uint8
+	var i int         // puede ser int32 o int64 dependiendo de la plataforma
+	var ui uint       // uint32 o uint64
+	var r rune        // int32
+	var uiptr uintptr // entero sin signo capaz de guardar una direccion como numero
 
-	f64 = float64(i64)
-	fmt.Printf("f64: %.2f, %T\n", f64, f64)
+	// tipos enteros explicitos
+	var i8 int8
+	var i16 int16
+	var i32 int32
+	var i64 int64
+	var ui8 uint8
+	var ui16 uint16
+	var ui32 uint32
+	var ui64 uint64
 
-	b = byte(i)
-	f64 = 3.14
-	f32 := float32(f64)
-	fmt.Printf("f32: %.6f, %T\n", f32, f32)
+	// flotantes
+	var f32 float32
+	var f64 float64
 
-	b = 65
-	r = rune(b)
-	s = string(r)
-	fmt.Printf("s: %s, %T\n", s, s)
+	// constantes implicitas
+	const ic = 10 // ic es untyped
+	b = ic        // puede ser asignada a distintos tipos numericos
+	i = ic
+	ui = ic
+	const dc = 3.14      // c es untyped
+	var fci float32 = dc // c puede ser asignada a float32
+	var dci = dc         // o a float64, declaracion implicita
+	var dce float64 = dc // decl explicita
 
-	r = '🌎'
-	fmt.Printf("r: %c, %T\n", r, r)
+	// constantes explicitas
+	const ie int = 10 // ie es una constante de tipo int
+	var cie int = ie  // y solo puede ser asignada a ints
+	// var ci8e int8 = ie 			// pero no a otro tipo int
 
-	// t = bool(i) //cannot convert i (variable of type int) to type bool
-	t = f64 > float64(i)
-	// s = string(t)
-	fmt.Printf("t: %v, %T\n", t, t)
+	// tipo runa
+	r = 'a' // Unicode codepoint
 
-	// b = byte(300) // constant 300 overflows byte
-	// fmt.Printf("b: %v\n", b)
+	// tipo string
+	var si = "Hola, "        // decl implicita
+	var se string = "mundo!" // decl explicita
+	var sraw string = `
+	Hello,
+		world!
+	`
 
-	fmt.Println("int8:", math.MinInt8, math.MaxInt8)
-	fmt.Println("int16:", math.MinInt16, math.MaxInt16)
-	fmt.Println("int32:", math.MinInt32, math.MaxInt32)
-	fmt.Println("int64:", math.MinInt64, math.MaxInt64)
+	// tipo boolean
+	var bf bool         // zero value es false
+	var bt = true       // decl implicita
+	var btt bool = true // decl explicita
 
-	fmt.Println("uint8:", 0, math.MaxUint8)
-	fmt.Println("uint16:", 0, math.MaxUint16)
-	fmt.Println("uint32:", 0, math.MaxUint32)
-	fmt.Println("uint64:", uint64(0), uint64(math.MaxUint64))
+	// short declaration
+	bff := false
 
-	fmt.Println("float32 max:", math.MaxFloat32)
-	fmt.Println("float64 max:", math.MaxFloat64)
+	// conversiones entre tipos
+	b = byte(i)        // conversion explicita de int a byte
+	ui64 = uint64(i)   // de int a uint64
+	fci = float32(dce) // de float64 a float32
+	dce = float64(fci) // de float32 a float64
+	//r = sraw			// no es posible
+	i = 65
+	r = rune(i)                         // 'A'
+	s := string(r)                      // "A"
+	pi := &i                            // puntero a int
+	uiptr = uintptr(unsafe.Pointer(pi)) // usar solamente en codigo de bajo nivel o interop con C
 
-	fmt.Println("int min:", math.MinInt)
-	fmt.Println("int max:", math.MaxInt)
+	fmt.Println(b, i, ui, r, uiptr)
+	fmt.Println(i8, i16, i32, i64, ui8, ui16, ui32, ui64)
+	fmt.Println(f32, f64, fci, dci, dce)
+	fmt.Println(cie)
+	fmt.Println(si, se, sraw)
+	fmt.Println(bf, bt, btt, bff)
+	fmt.Println(s)
 
-	// byte == uint8
-	fmt.Println("byte:", 0, math.MaxUint8)
-
-	// rune == int32
-	fmt.Println("rune:", math.MinInt32, math.MaxInt32)
-
-	fmt.Println("int:", unsafe.Sizeof(i), "bytes")
-	fmt.Println("int32:", unsafe.Sizeof(i32), "bytes")
-	fmt.Println("int64:", unsafe.Sizeof(i64), "bytes")
+	fmt.Printf("valor: %d\n", i)
+	fmt.Printf("direccion: %#x\n", uiptr)
 
 }
