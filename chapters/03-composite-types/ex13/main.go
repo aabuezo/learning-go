@@ -3,38 +3,21 @@ package main
 import "fmt"
 
 func main() {
+	ages := map[string]int{
+		"Ana":  30,
+		"Luis": 25,
+		"Juan": 30,
+	}
+	// Crear un nuevo map:
+	byAge := map[int][]string{}
 
-	m := map[string]int{}
-	// m := make(map[string]int)	// otra forma
-
-	// insertar
-	m["ale"] = 51
-	m["marti"] = 20
-	m["yael"] = 25
-	m["sil"] = 53
-	m["otro"] = 30
-
-	fmt.Println(m)
-
-	// leer
-	fmt.Println("ale:", m["ale"])
-
-	// modificar
-	fmt.Println("sil:", m["sil"])
-	m["sil"] = 54
-	fmt.Println("sil:", m["sil"])
-
-	// borrar con delete
-	delete(m, "otro")
-
-	// verificar existencia con value, ok
-	if v, ok := m["otro"]; ok {
-		fmt.Println("otro:", v)
+	// Donde la clave sea la edad y el valor sea la lista de nombres con esa edad.
+	for k, v := range ages {
+		byAge[v] = append(byAge[v], k)
 	}
 
-	if v, ok := m["marti"]; ok {
-		fmt.Println("marti:", v)
+	// Imprimir
+	for k, v := range byAge {
+		fmt.Println(k, v)
 	}
-
-	fmt.Println(m)
 }

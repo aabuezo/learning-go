@@ -3,23 +3,29 @@ package main
 import "fmt"
 
 func main() {
-	var a []int
-	b := []int{}
-	c := make([]int, 0)
+	nums := []int{1, 2, 3, 4, 5}
+	a := nums[:2]
 
-	fmt.Println(a == nil) // true
-	fmt.Println(b == nil) // false
-	fmt.Println(c == nil) // false
+	fmt.Println(nums)
+	fmt.Println(a, len(a), cap(a))
 
-	fmt.Printf("len(a): %d, cap(a): %d, a: %v\n", len(a), cap(a), a)
-	fmt.Printf("len(b): %d, cap(b): %d, b: %v\n", len(b), cap(b), b)
-	fmt.Printf("len(c): %d, cap(c): %d, c: %v\n", len(c), cap(c), c)
+	a = append(a, 30)
+	fmt.Println(nums)
+	fmt.Println(a, len(a), cap(a))
 
-	a = append(a, 1, 2, 3)
-	b = append(b, 1, 2, 3)
-	c = append(c, 1, 2, 3)
+	a = append(a, 40)
+	fmt.Println(nums)
+	fmt.Println(a, len(a), cap(a))
 
-	fmt.Println("a:", a)
-	fmt.Println("b:", b)
-	fmt.Println("c:", c)
+	a = append(a, 50)
+	fmt.Println(nums)
+	fmt.Println(a, len(a), cap(a))
+
+	a = append(a, 60) // aca ya no modifica el backing array
+	fmt.Println(nums)
+	fmt.Println(a, len(a), cap(a))
+
+	a = append(a, 70)
+	fmt.Println(nums)
+	fmt.Println(a, len(a), cap(a))
 }

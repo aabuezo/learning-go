@@ -3,29 +3,38 @@ package main
 import "fmt"
 
 func main() {
-	nums := []int{1, 2, 3, 4, 5}
-	a := nums[:2]
 
-	fmt.Println(nums)
-	fmt.Println(a, len(a), cap(a))
+	m := map[string]int{}
+	// m := make(map[string]int)	// otra forma
 
-	a = append(a, 30)
-	fmt.Println(nums)
-	fmt.Println(a, len(a), cap(a))
+	// insertar
+	m["ale"] = 51
+	m["marti"] = 20
+	m["yael"] = 25
+	m["sil"] = 53
+	m["otro"] = 30
 
-	a = append(a, 40)
-	fmt.Println(nums)
-	fmt.Println(a, len(a), cap(a))
+	fmt.Println(m)
 
-	a = append(a, 50)
-	fmt.Println(nums)
-	fmt.Println(a, len(a), cap(a))
+	// leer
+	fmt.Println("ale:", m["ale"])
 
-	a = append(a, 60) // aca ya no modifica el backing array
-	fmt.Println(nums)
-	fmt.Println(a, len(a), cap(a))
+	// modificar
+	fmt.Println("sil:", m["sil"])
+	m["sil"] = 54
+	fmt.Println("sil:", m["sil"])
 
-	a = append(a, 70)
-	fmt.Println(nums)
-	fmt.Println(a, len(a), cap(a))
+	// borrar con delete
+	delete(m, "otro")
+
+	// verificar existencia con value, ok
+	if v, ok := m["otro"]; ok {
+		fmt.Println("otro:", v)
+	}
+
+	if v, ok := m["marti"]; ok {
+		fmt.Println("marti:", v)
+	}
+
+	fmt.Println(m)
 }

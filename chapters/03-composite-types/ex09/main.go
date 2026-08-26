@@ -2,29 +2,71 @@ package main
 
 import "fmt"
 
+// solucion mas limpia
+func removeAt(nums []int, index int) []int {
+	if index < 0 || index >= len(nums) {
+		return nil
+	}
+	s := make([]int, 0)
+	for i, v := range nums {
+		if i == index {
+			continue
+		}
+		s = append(s, v)
+	}
+	return s
+}
+
+// solucion mas eficiente porque preasigna el tamanio exacto
+func removeAt2(nums []int, index int) []int {
+	if index < 0 || index >= len(nums) {
+		return nil
+	}
+	s := make([]int, len(nums)-1)
+	si := 0
+	for i, v := range nums {
+		if i == index {
+			continue
+		}
+		s[si] = v
+		si++
+	}
+	return s
+}
+
 func main() {
+	nums := []int{10, 20, 30, 40, 50}
 
-	nums := []int{10, 20, 30, 40, 50, 60}
+	// eliminar primero
+	newNums := removeAt(nums, 0)
+	fmt.Println(newNums)
 
-	// primeros 3 elementos
-	fmt.Println(nums[:3])
+	// eliminar del medio
+	newNums = removeAt(nums, len(nums)/2)
+	fmt.Println(newNums)
 
-	// ultimos 3 elementos
-	fmt.Println(nums[3:])
+	// eliminar ultimo
+	newNums = removeAt(nums, len(nums)-1)
+	fmt.Println(newNums)
 
-	// elementos del medio
-	fmt.Println(nums[2:4])
+	// indice invalido
+	newNums = removeAt(nums, len(nums))
+	fmt.Println(newNums)
 
-	// slice vacio desde nums[:0]
-	vacio := nums[:0]
-	fmt.Println(vacio, len(vacio), cap(vacio))
+	// eliminar primero
+	newNums = removeAt2(nums, 0)
+	fmt.Println(newNums)
 
-	// slice completo con nums[:]
-	completo := nums[:]
-	fmt.Println(completo, len(completo), cap(completo))
+	// eliminar del medio
+	newNums = removeAt2(nums, len(nums)/2)
+	fmt.Println(newNums)
 
-	nums2 := nums[:3]
-	nums2[0] = 100
-	fmt.Println(nums)
-	fmt.Println(nums2)
+	// eliminar ultimo
+	newNums = removeAt2(nums, len(nums)-1)
+	fmt.Println(newNums)
+
+	// indice invalido
+	newNums = removeAt2(nums, len(nums))
+	fmt.Println(newNums)
+
 }

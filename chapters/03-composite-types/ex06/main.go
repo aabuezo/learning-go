@@ -3,11 +3,28 @@ package main
 import "fmt"
 
 func main() {
-	arr1 := [3]int{1, 2, 3}
-	arr2 := [3]int{1, 2, 3}
-	arr3 := [4]int{1, 2, 3, 4}
-	arr4 := [4]int{1, 2, 3, 5}
-	fmt.Println(arr1 == arr2) // true
-	// fmt.Println(arr1 == arr3)	// invalid operation: arr1 == arr3 (mismatched types [3]int and [4]int)
-	fmt.Println(arr3 == arr4) // false
+
+	nums := []int{10, 20, 30, 40, 50, 60}
+
+	// primeros 3 elementos
+	fmt.Println(nums[:3])
+
+	// ultimos 3 elementos
+	fmt.Println(nums[3:])
+
+	// elementos del medio
+	fmt.Println(nums[2:4])
+
+	// slice vacio desde nums[:0]
+	vacio := nums[:0]
+	fmt.Println(vacio, len(vacio), cap(vacio))
+
+	// slice completo con nums[:]
+	completo := nums[:]
+	fmt.Println(completo, len(completo), cap(completo))
+
+	nums2 := nums[:3]
+	nums2[0] = 100
+	fmt.Println(nums)
+	fmt.Println(nums2)
 }
