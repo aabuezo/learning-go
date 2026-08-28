@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -31,7 +30,9 @@ func (c *Cart) Add(ci CartItem, inv Inventory) error {
 		return fmt.Errorf("no hay suficiente stock para el producto con ID %d", ci.ProductID)
 	}
 
-	inv.AdjustStock(ci.ProductID, -ci.Quantity)
+	if err := inv.AdjustStock(ci.ProductID, -ci.Quantity); err != nil {
+		return err
+	}
 
 	for i, cartItem := range c.items {
 		if cartItem.ProductID == ci.ProductID {
@@ -117,12 +118,13 @@ func (c *Cart) ChangeQuantity(id, q int, inv Inventory) error {
 func (c Cart) Total(inv Inventory) (float64, error) {
 	total := 0.0
 	for _, cartItem := range c.items {
-		if product, ok := inv[cartItem.ProductID]; ok {
-			total += product.Price * float64(cartItem.Quantity)
-		} else {
+		product, ok := inv[cartItem.ProductID]
+		if !ok {
 			return 0.0, fmt.Errorf(
 				"el producto con ID %d no existe", cartItem.ProductID)
 		}
+
+		total += product.Price * float64(cartItem.Quantity)
 	}
 
 	return total, nil
@@ -164,8 +166,31 @@ type Product struct {
 type Inventory map[int]Product
 
 // agregar producto
-func (inv Inventory) Add(product Product) {
-	inv[product.ID] = product
+func (inv Inventory) Add(p Product) error {
+	if p.Stock < 0 {
+		return fmt.Errorf("stock inválido")
+	}
+
+	if p.Price < 0 {
+		return fmt.Errorf("precio inválido")
+	}
+
+	if p.ID <= 0 {
+		return fmt.Errorf("ID inválido")
+	}
+
+	if p.Name == "" {
+		return fmt.Errorf("nombre inválido")
+	}
+
+	product, ok := inv[p.ID]
+	if ok {
+		product.Stock += p.Stock
+		inv[p.ID] = product
+	} else {
+		inv[p.ID] = p
+	}
+	return nil
 }
 
 // buscar producto por ID
@@ -173,7 +198,7 @@ func (inv Inventory) Find(id int) (Product, error) {
 	if product, ok := inv[id]; ok {
 		return product, nil
 	}
-	return Product{}, errors.New("product not found")
+	return Product{}, fmt.Errorf("producto no encontrado")
 }
 
 // calcular valor total del inventario
@@ -188,13 +213,19 @@ func (inv Inventory) Total() float64 {
 
 // actualizar stock
 func (inv Inventory) AdjustStock(id, stock int) error {
-	if product, ok := inv[id]; ok {
+	product, ok := inv[id]
+	if !ok {
+		return fmt.Errorf("producto no encontrado")
+	}
+
+	if product.Stock+stock >= 0 {
 		product.Stock += stock
 		inv[id] = product
 		return nil
 	}
 
-	return errors.New("product not found")
+	return fmt.Errorf(
+		"stock insuficiente para el producto con ID %d", id)
 }
 
 // listar productos
@@ -240,9 +271,18 @@ func main() {
 	separator := strings.Repeat("-", 39)
 
 	inv := NewInventory()
-	inv.Add(book)
-	inv.Add(notebook)
-	inv.Add(paper)
+	err := inv.Add(book)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	err = inv.Add(notebook)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	err = inv.Add(paper)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
 	inv.Print()
 	fmt.Println(separator)
 
@@ -275,8 +315,14 @@ func main() {
 	inv.Print()
 	fmt.Println(separator)
 
-	cart.ChangeQuantity(paper.ID, 20, inv)
-	cart.Remove(notebook.ID, inv)
+	err = cart.ChangeQuantity(paper.ID, 20, inv)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	err = cart.Remove(notebook.ID, inv)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
 	cart.Print(inv)
 	fmt.Println(separator)
 
