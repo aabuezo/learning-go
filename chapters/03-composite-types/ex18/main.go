@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"sort"
 )
 
 type Product struct {
@@ -12,64 +13,106 @@ type Product struct {
 	Stock int
 }
 
-type Inventory struct {
-	Items []Product
-}
+type Inventory map[int]Product
 
 // agregar producto
-func (i *Inventory) Add(p Product) {
-	i.Items = append(i.Items, p)
+func (inv Inventory) Add(product Product) {
+	inv[product.ID] = product
 }
 
 // buscar producto por ID
-func (i *Inventory) SearchProductByID(id int) (Product, error) {
-	for _, product := range i.Items {
-		if product.ID == id {
-			return product, nil
-		}
+func (inv Inventory) SearchProductByID(id int) (Product, error) {
+	if product, ok := inv[id]; ok {
+		return product, nil
 	}
 	return Product{}, errors.New("product not found")
 }
 
 // actualizar stock
-func (i *Inventory) Update(p Product) error {
-	for idx, product := range i.Items {
-		if product.ID == p.ID {
-			i.Items[idx] = p
-			return nil
-		}
+func (inv Inventory) Update(id, stock int) error {
+	if product, ok := inv[id]; ok {
+		product.Stock = stock
+		inv[id] = product
+		return nil
 	}
-	return errors.New("could not update product")
+	return errors.New("product not found")
 }
 
 // listar productos
-func (i Inventory) Print() {
-	for _, product := range i.Items {
-		fmt.Println(product)
+func (inv Inventory) Print() {
+	ids := make([]int, 0, len(inv))
+	for id := range inv {
+		ids = append(ids, id)
+	}
+
+	sort.Ints(ids)
+
+	for _, id := range ids {
+		fmt.Println(inv[id])
 	}
 }
 
 // calcular valor total del inventario
-func (i Inventory) Total() float64 {
+func (inv Inventory) Total() float64 {
 	total := 0.0
-	for _, product := range i.Items {
+	for _, product := range inv {
 		total += product.Price * float64(product.Stock)
 	}
 	return total
 }
 
 func NewInventory() Inventory {
-	return Inventory{Items: make([]Product, 0)}
+	return make(Inventory)
 }
 
 func main() {
 
-	book := Product{1, "book", 36.0, 20}
-	notebook := Product{2, "notebook", 999, 5}
+	book := Product{
+		ID:    1,
+		Name:  "book",
+		Price: 36.0,
+		Stock: 20,
+	}
+	notebook := Product{
+		ID:    2,
+		Name:  "notebook",
+		Price: 999,
+		Stock: 5,
+	}
+	paper := Product{
+		ID:    3,
+		Name:  "paper",
+		Price: 5.5,
+		Stock: 100,
+	}
 
-	inventory := NewInventory()
-	inventory.Add(book)
-	inventory.Add(notebook)
-	inventory.Print()
+	inv := NewInventory()
+	inv.Add(book)
+	inv.Add(notebook)
+	inv.Add(paper)
+	inv.Print()
+	fmt.Println("----------------------")
 
+	// buscar id que no existe
+	_, err := inv.SearchProductByID(10)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// buscar un id que si existe
+	prod, err := inv.SearchProductByID(2)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(prod)
+	fmt.Println("----------------------")
+
+	err = inv.Update(2, 10)
+	if err != nil {
+		fmt.Println(err)
+	}
+	inv.Print()
+	fmt.Println("----------------------")
+
+	fmt.Println("Total Inventory: $", inv.Total())
 }
