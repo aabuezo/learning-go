@@ -29,10 +29,8 @@ func (ss *Students) AddStudent(s Student) error {
 		return fmt.Errorf("you need to create Students first")
 	}
 
-	for _, student := range *ss {
-		if s.ID == student.ID {
-			return ErrStudentExists
-		}
+	if _, err := ss.findByID(s.ID); err == nil {
+		return ErrStudentExists
 	}
 
 	*ss = append(*ss, s)
@@ -53,31 +51,25 @@ func (ss *Students) AddGrade(id int, g Grade) error {
 		return fmt.Errorf("grade must be between 0 and 100")
 	}
 
-	for i, student := range *ss {
-		if student.ID == id {
-			(*ss)[i].Grades = append((*ss)[i].Grades, g)
-			return nil
-		}
+	sid, err := ss.findByID(id)
+	if err != nil {
+		return err
 	}
 
-	return fmt.Errorf("%w: %d", ErrStudentNotFound, id)
+	(*ss)[sid].Grades = append((*ss)[sid].Grades, g)
+	return nil
 }
 
 // calcular promedio de un estudiante
 func (ss Students) GetAverage(id int) (Grade, error) {
 	var grades []Grade
-	present := false
-	for _, s := range ss {
-		if s.ID == id {
-			grades = s.Grades
-			present = true
-		}
+
+	sid, err := ss.findByID(id)
+	if err != nil {
+		return 0, err
 	}
 
-	if !present {
-		return 0.0, fmt.Errorf("%w: %d", ErrStudentNotFound, id)
-	}
-
+	grades = ss[sid].Grades
 	if len(grades) == 0 {
 		return 0.0, fmt.Errorf("%w: %d", ErrNoGrades, id)
 	}
@@ -90,28 +82,29 @@ func (ss Students) GetAverage(id int) (Grade, error) {
 }
 
 // listar estudiantes aprobados
-func (ss Students) ListApprovedStudents() error {
+func (ss Students) ListApprovedStudents() (Students, error) {
 	if len(ss) == 0 {
-		return ErrEmptyStudents
+		return nil, ErrEmptyStudents
 	}
 
-	const approved float64 = 70.0
+	const approved Grade = 70.0
+	approvedStudents := Students{}
 
 	for _, s := range ss {
 		avg, err := ss.GetAverage(s.ID)
+		if errors.Is(err, ErrNoGrades) {
+			continue
+		}
 		if err != nil {
-			if errors.Is(err, ErrNoGrades) {
-				continue
-			}
-			return err
+			return nil, err
 		}
 
-		if avg >= Grade(approved) {
-			fmt.Printf("%s approved with average: %.2f\n", s.Name, avg)
+		if avg >= approved {
+			approvedStudents = append(approvedStudents, s)
 		}
 	}
 
-	return nil
+	return approvedStudents, nil
 }
 
 // buscar mejor promedio
@@ -120,7 +113,7 @@ func (ss Students) FindBestAverage() (Student, error) {
 		return Student{}, ErrEmptyStudents
 	}
 
-	max := Grade(0.0)
+	var max Grade = 0.0
 	idx := 0
 	found := false
 	for i, s := range ss {
@@ -146,19 +139,23 @@ func (ss Students) FindBestAverage() (Student, error) {
 	return ss[idx], nil
 }
 
-func (ss Students) Print() error {
+func (ss Students) findByID(id int) (int, error) {
+	for i, s := range ss {
+		if s.ID == id {
+			return i, nil
+		}
+	}
+	return -1, fmt.Errorf("%w: %d", ErrStudentNotFound, id)
+}
+
+func (ss Students) Print() {
 	if len(ss) == 0 {
-		return ErrEmptyStudents
+		return
 	}
 
 	for _, s := range ss {
 		fmt.Println(s)
 	}
-	return nil
-}
-
-func NewStudents() Students {
-	return make(Students, 0)
 }
 
 func main() {
@@ -179,7 +176,7 @@ func main() {
 		Grades: []Grade{},
 	}
 
-	ss := NewStudents()
+	var ss Students
 	if err := ss.AddStudent(jane); err != nil {
 		fmt.Println(err)
 	}
@@ -236,9 +233,12 @@ func main() {
 
 	fmt.Println(separator)
 
-	err = ss.ListApprovedStudents()
+	lst, err := ss.ListApprovedStudents()
 	if err != nil {
 		fmt.Println(err)
+	}
+	for _, s := range lst {
+		fmt.Println(s)
 	}
 	fmt.Println(separator)
 
