@@ -4,6 +4,7 @@ import "fmt"
 
 func main() {
 
+	// var m map[string]int	// panic
 	m := map[string]int{}
 	// m := make(map[string]int)	// otra forma
 
