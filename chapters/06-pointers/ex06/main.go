@@ -14,6 +14,10 @@ func (c *Cuenta) Depositar(monto float64) {
 	c.saldo += monto
 }
 
+func (c Cuenta) DepositarPorValor(monto float64) {
+	c.saldo += monto
+}
+
 type Depositante interface {
 	Depositar(float64)
 }
@@ -26,5 +30,6 @@ func main() {
 	depositante.Depositar(50)
 
 	fmt.Println(cuenta.Saldo())
-	// TODO: comparar con un método que use receptor por valor.
+	cuenta.DepositarPorValor(50)
+	fmt.Println(cuenta.Saldo())
 }
